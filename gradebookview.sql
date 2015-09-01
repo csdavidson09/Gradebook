@@ -1,0 +1,5 @@
+create or replace view asm_total as (select s1.st_id, sum(score) as asm_total from score s1, work w1 where s1.w_id = w1.w_id and w1.type = 'a' group by s1.st_id);
+create or replace view quiz_total as (select s1.st_id, sum(score) as quiz_total from score s1, work w1 where s1.w_id = w1.w_id and w1.type = 'q' group by s1.st_id);
+create or replace view midterm as (select s1.st_id, sum(score) as midterm from score s1, work w1 where s1.w_id = w1.w_id and w1.type = 't' and w1.num = 1 group by s1.st_id);
+create or replace view perfect_total(nickname, asm_total, quiz_total, midterm, percent) as (select 'perfect'::varchar(10), asm_total(), quiz_total(), midterm(), 100);
+create or replace view total_grades as ((select s1.code as nickname, asm_total, quiz_total, midterm, percent(s1.st_id) from students s1, asm_total a1, quiz_total q1, midterm m1 where s1.st_id = a1.st_id and a1.st_id = q1.st_id and q1.st_id = m1.st_id) union (select * from perfect_total)) order by percent desc nulls last;
